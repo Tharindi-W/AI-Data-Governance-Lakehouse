@@ -40,6 +40,24 @@ data/raw/cdr_records.csv
 ## Environment
 Requires `.env` with `ANTHROPIC_API_KEY`. See `.env.example`.
 
+**Virtual environment:** `.venv/` (Python 3.12). Activate with `source .venv/bin/activate`.
+**Always run scripts with:** `PYTHONPATH=. .venv/bin/python -m <module>`
+
+## Pipeline Status (2026-05-20)
+| Step | Status | Notes |
+|------|--------|-------|
+| `make data` | ✅ DONE | 564,480 rows (500 sq × 7 days), 5% anomaly injected |
+| `make bronze` | ✅ DONE | Delta Lake at `data/bronze/cdr_records` |
+| `make silver` | ✅ DONE | 10/10 validation checks PASS |
+| `make model` | 🔄 In progress | PyTorch autoencoder training |
+| `make gold` | ⏳ Pending | |
+| `make agent` | ⏳ Pending | Needs real `ANTHROPIC_API_KEY` in `.env` |
+
+**GitHub:** https://github.com/Tharindi-W/AI-Data-Governance-Lakehouse
+
+## Fixes Applied
+- `src/quality/validators.py`: Switched from per-column `col_schema.validate(series)` to `schema.validate(df, lazy=True)` — pandera Column.validate() requires a DataFrame, not a Series
+
 ## Run Order
 1. `make data`   — generate synthetic CDR (500 squares × 7 days ≈ 650k rows)
 2. `make bronze` — ingest to Delta Lake

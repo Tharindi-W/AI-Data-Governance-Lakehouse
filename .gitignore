@@ -1,0 +1,72 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.venv/
+venv/
+env/
+.env
+
+# Delta Lake & Spark
+data/bronze/
+data/silver/
+data/gold/
+*.crc
+_delta_log/
+*.parquet
+spark-warehouse/
+metastore_db/
+derby.log
+
+# Keep raw data generated during demo
+!data/raw/.gitkeep
+!data/bronze/.gitkeep
+!data/silver/.gitkeep
+!data/gold/.gitkeep
+
+# Model artifacts
+src/models/trained/*.pt
+src/models/trained/*.pth
+!src/models/trained/.gitkeep
+
+# Reports (generated at runtime)
+governance/reports/*.json
+governance/reports/*.html
+governance/reports/*.md
+governance/lineage/*.json
+!governance/reports/.gitkeep
+!governance/lineage/.gitkeep
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Prefect
+.prefect/
+
+# Testing
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# uv
+.uv/
+uv.lock

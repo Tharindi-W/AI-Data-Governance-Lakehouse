@@ -1,0 +1,70 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "data-governance-lakehouse"
+version = "0.1.0"
+description = "AI-Powered Data Governance & Quality Lakehouse with Databricks/Delta Lake, PyTorch, and Claude AI agents"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Data Engineering Team" }]
+keywords = ["databricks", "delta-lake", "data-governance", "pytorch", "ai-agents", "lakehouse"]
+
+dependencies = [
+    "pyspark==3.5.3",
+    "delta-spark==3.2.0",
+    "torch>=2.1.0",
+    "numpy>=1.26.0",
+    "pandas>=2.1.0",
+    "scikit-learn>=1.3.0",
+    "pandera>=0.18.0",
+    "prefect>=2.16.0",
+    "anthropic>=0.30.0",
+    "python-dotenv>=1.0.0",
+    "rich>=13.7.0",
+    "pyarrow>=14.0.0",
+    "matplotlib>=3.8.0",
+    "seaborn>=0.13.0",
+    "jupyter>=1.0.0",
+    "ipykernel>=6.28.0",
+    "faker>=22.0.0",
+    "tqdm>=4.66.0",
+    "pydantic>=2.5.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "ruff>=0.1.0",
+]
+
+[project.scripts]
+generate-data = "src.data.generate_synthetic:main"
+run-bronze = "src.pipelines.bronze:main"
+run-silver = "src.pipelines.silver:main"
+run-gold = "src.pipelines.gold:main"
+train-model = "src.models.train:main"
+run-agent = "src.agents.governance_agent:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"

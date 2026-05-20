@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Install dependencies
+        run: uv sync --extra dev
+
+      - name: Lint with ruff
+        run: uv run ruff check src/ tests/ flows/
+
+      - name: Run unit tests (no Spark)
+        run: uv run pytest tests/test_quality_validators.py tests/test_autoencoder.py -v
+        env:
+          ANTHROPIC_API_KEY: "sk-ant-test-key-not-real"
+
+      - name: Verify synthetic data generation
+        run: uv run python -m src.data.generate_synthetic
+        env:
+          NUM_CUSTOMERS: "50"
+          NUM_PRODUCTS: "20"
+          NUM_ORDERS: "100"
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install ruff
+      - run: ruff check src/ tests/ flows/ --output-format github

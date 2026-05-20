@@ -1,7 +1,9 @@
 .PHONY: setup install data bronze silver model gold agent flow all clean test lint help
 
-PYTHON := python
+VENV := .venv
+PYTHON := $(shell [ -f $(VENV)/bin/python ] && echo $(VENV)/bin/python || echo python)
 UV := uv
+export PYTHONPATH := .
 
 help:
 	@echo "Telecom Italia CDR Lakehouse - Available Commands"
@@ -37,6 +39,7 @@ silver:
 
 model:
 	$(PYTHON) -m src.models.train
+	$(PYTHON) -m src.models.inference
 
 gold:
 	$(PYTHON) -m src.pipelines.gold

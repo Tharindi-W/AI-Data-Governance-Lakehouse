@@ -49,8 +49,8 @@ Requires `.env` with `ANTHROPIC_API_KEY`. See `.env.example`.
 | `make data` | ✅ DONE | 564,480 rows (500 sq × 7 days), 5% anomaly injected |
 | `make bronze` | ✅ DONE | Delta Lake at `data/bronze/cdr_records` |
 | `make silver` | ✅ DONE | 10/10 validation checks PASS |
-| `make model` | 🔄 In progress | PyTorch autoencoder training |
-| `make gold` | ⏳ Pending | |
+| `make model` | ✅ DONE | P95 threshold=0.024534, final loss=0.017373; 28,192 anomalies (5.0%) detected |
+| `make gold` | ✅ DONE | hourly_grid_activity(84k), daily_country_usage(646), grid_heatmap(500), anomaly_summary(3) |
 | `make agent` | ⏳ Pending | Needs real `ANTHROPIC_API_KEY` in `.env` |
 
 **GitHub:** https://github.com/Tharindi-W/AI-Data-Governance-Lakehouse

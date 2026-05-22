@@ -1,35 +1,38 @@
-.PHONY: setup install data bronze silver model gold agent flow all clean test lint help
+.PHONY: setup install download bronze silver model gold agent flow all clean test lint help
 
-VENV := .venv
+VENV   := .venv
 PYTHON := $(shell [ -f $(VENV)/bin/python ] && echo $(VENV)/bin/python || echo python)
-UV := uv
+UV     := uv
 export PYTHONPATH := .
 
+# Number of days to download (default 7 = Mon 2013-11-04 through Sun 2013-11-10)
+DAYS ?= 7
+
 help:
-	@echo "Telecom Italia CDR Lakehouse - Available Commands"
+	@echo "Telecom Italia CDR Lakehouse — Available Commands"
 	@echo "──────────────────────────────────────────────────"
-	@echo "  make setup        Install dependencies with uv"
-	@echo "  make install      Install with pip (fallback)"
-	@echo "  make data         Generate synthetic CDR data (Telecom Italia Milan schema)"
-	@echo "  make bronze       Ingest CDR CSV → Delta Lake (bronze)"
-	@echo "  make silver       Clean, validate, flag CDR records (silver)"
-	@echo "  make model        Train PyTorch CDR anomaly detection model"
-	@echo "  make gold         Build CDR aggregations (gold)"
-	@echo "  make agent        Run AI governance agent (requires ANTHROPIC_API_KEY)"
-	@echo "  make flow         Run full Prefect orchestrated pipeline"
-	@echo "  make all          Run complete pipeline end-to-end"
-	@echo "  make test         Run test suite"
-	@echo "  make lint         Lint with ruff"
-	@echo "  make clean        Remove generated artifacts"
+	@echo "  make setup          Install dependencies (uv)"
+	@echo "  make install        Install dependencies (pip fallback)"
+	@echo "  make download       Download real CDR data from Harvard Dataverse"
+	@echo "                      Override days: make download DAYS=3"
+	@echo "  make bronze         Ingest raw .txt files → Delta Lake (bronze)"
+	@echo "  make silver         Clean, validate, flag CDR records (silver)"
+	@echo "  make model          Train PyTorch anomaly detector + run inference"
+	@echo "  make gold           Build CDR aggregation tables (gold)"
+	@echo "  make agent          Run AI governance agent (needs ANTHROPIC_API_KEY)"
+	@echo "  make all            Download + full pipeline end-to-end"
+	@echo "  make clean          Remove generated data/model/report artifacts"
+	@echo "  make test           Run test suite"
+	@echo "  make lint           Lint with ruff"
 
 setup:
 	$(UV) sync
 
 install:
-	pip install -e ".[dev]"
+	$(PYTHON) -m pip install -e ".[dev]"
 
-data:
-	$(PYTHON) -m src.data.generate_synthetic
+download:
+	$(PYTHON) -m src.data.download_raw --days $(DAYS)
 
 bronze:
 	$(PYTHON) -m src.pipelines.bronze
@@ -52,7 +55,7 @@ flow:
 
 all:
 	@echo "Running full pipeline..."
-	$(MAKE) data
+	$(MAKE) download
 	$(MAKE) bronze
 	$(MAKE) silver
 	$(MAKE) model
@@ -71,4 +74,7 @@ clean:
 	find . -name "*.pyc" -delete 2>/dev/null || true
 	rm -f derby.log
 	rm -rf metastore_db spark-warehouse
-	@echo "Cleaned Python artifacts"
+	rm -rf data/bronze data/silver data/gold
+	rm -rf src/models/trained/*.pt src/models/trained/*.pkl src/models/trained/*.json
+	rm -rf governance/reports/*.md governance/reports/*.json governance/lineage/*.json
+	@echo "Cleaned all generated artifacts."

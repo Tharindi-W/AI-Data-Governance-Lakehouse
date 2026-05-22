@@ -104,8 +104,12 @@ def main():
     write_silver(df, "cdr_records")
     reporter.add_table_stats("cdr_records", stats)
 
-    console.print("\n[bold]Running schema validation...[/bold]")
-    pdf = spark.read.format("delta").load(str(SILVER_PATH / "cdr_records")).toPandas()
+    console.print("\n[bold]Running schema validation (sample 100k rows)...[/bold]")
+    pdf = (spark.read.format("delta")
+               .load(str(SILVER_PATH / "cdr_records"))
+               .sample(fraction=0.1, seed=42)
+               .limit(100_000)
+               .toPandas())
     validation = {"cdr_records": validate_cdr(pdf)}
     reporter.add_validation_results(validation)
 

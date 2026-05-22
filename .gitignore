@@ -25,7 +25,11 @@ spark-warehouse/
 metastore_db/
 derby.log
 
-# Keep raw data generated during demo
+# Raw data (large files — download via make download)
+data/raw/*.txt
+data/raw/*.csv
+
+# Keep directory placeholders
 !data/raw/.gitkeep
 !data/bronze/.gitkeep
 !data/silver/.gitkeep
@@ -34,6 +38,8 @@ derby.log
 # Model artifacts
 src/models/trained/*.pt
 src/models/trained/*.pth
+src/models/trained/*.pkl
+src/models/trained/*.json
 !src/models/trained/.gitkeep
 
 # Reports (generated at runtime)
@@ -43,6 +49,10 @@ governance/reports/*.md
 governance/lineage/*.json
 !governance/reports/.gitkeep
 !governance/lineage/.gitkeep
+
+# One-off scripts
+generate_pdf.py
+PROJECT_LOG.pdf
 
 # Jupyter
 .ipynb_checkpoints/

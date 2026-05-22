@@ -32,7 +32,7 @@ install:
 	$(PYTHON) -m pip install -e ".[dev]"
 
 download:
-	$(PYTHON) -m src.data.download_raw --days $(DAYS)
+	$(PYTHON) -m src.data.download_raw --days $(DAYS) $(if $(TOKEN),--token $(TOKEN),)
 
 bronze:
 	$(PYTHON) -m src.pipelines.bronze

@@ -51,8 +51,10 @@ DAILY_FILES: list[tuple[str, int]] = [
 BASE_URL = "https://dataverse.harvard.edu/api/access/datafile"
 
 
-def download_file(filename: str, file_id: int, dest: Path) -> bool:
+def download_file(filename: str, file_id: int, dest: Path, api_token: str = "") -> bool:
     url  = f"{BASE_URL}/{file_id}"
+    if api_token:
+        url += f"?key={api_token}"
     path = dest / filename
 
     if path.exists() and path.stat().st_size > 1_000_000:
@@ -90,7 +92,22 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--days", type=int, default=7,
                         help="Number of daily files to download (default 7)")
+    parser.add_argument("--token", type=str, default="",
+                        help="Harvard Dataverse API token (required — see README)")
     args = parser.parse_args()
+
+    if not args.token:
+        import os
+        args.token = os.getenv("DATAVERSE_TOKEN", "")
+
+    if not args.token:
+        console.print("[red]ERROR: Harvard Dataverse API token required.[/red]")
+        console.print("\nTo get one:")
+        console.print("  1. Go to https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/EGZHFV")
+        console.print("  2. Sign in (free) → fill guestbook → account → API Token")
+        console.print("  3. Run: make download TOKEN=<your-token>")
+        console.print("     Or:  DATAVERSE_TOKEN=<token> make download\n")
+        return
 
     ensure_paths()
     files = DAILY_FILES[: args.days]
@@ -99,7 +116,7 @@ def main():
     console.print(f"  Source : Harvard Dataverse doi:10.7910/DVN/EGZHFV")
     console.print(f"  Dest   : {RAW_PATH}\n")
 
-    ok = sum(download_file(fn, fid, RAW_PATH) for fn, fid in files)
+    ok = sum(download_file(fn, fid, RAW_PATH, args.token) for fn, fid in files)
     total_mb = sum((RAW_PATH / fn).stat().st_size for fn, _ in files if (RAW_PATH / fn).exists()) / 1_048_576
 
     console.print(f"\n[bold green]Downloaded {ok}/{len(files)} files — {total_mb:.0f} MB total[/bold green]\n")
